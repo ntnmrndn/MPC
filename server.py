@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 
 import argparse
 import socket
@@ -24,8 +24,8 @@ class Client(AbstractSocket):
                 except: #XXX not pretty
                         Server.instance.disconnect(self)
                         return
-
-                print('Received msg', raw)
+                if not raw:
+                        Server.instance.disconnect(self)
                 if raw.startswith('NAME:'):
                         #XXX check names unicity
                         oldName = self.name
@@ -38,7 +38,7 @@ class Client(AbstractSocket):
                         args = raw.split(':',2)
                         to = args[1]
                         message = args[2]
-                        print ("Priv to ", to , "message", message)
+                        print ("Private message from", self.name, "to", to , ":", message)
                         Server.instance.private_message(self.formatMessage(message), self, to)
         def sendMessage(self, message):
                 self.socket.send(message.encode('utf-8'))
@@ -98,9 +98,9 @@ class Server(AbstractSocket):
 
 #Arguments
 parser = argparse.ArgumentParser(description='A simple chat server.')
-parser.add_argument('port', metavar='p', type=int, nargs='+',
-                   help='A port to listen to')
+parser.add_argument('port', metavar='p', type=int, nargs='?', default=4242,
+                    help='A port to listen to')
 args = parser.parse_args()
 print('Will now listen for clients on port:', args.port)
 print('Exit with Ctrl-C')
-Server(args.port[0]).run()
+Server(args.port).run()
