@@ -2,7 +2,7 @@ MPC
 ===
 Simple Many to Many Server/Client Messaging system.
 
-##Abstract 
+##Abstract
 
 This is just a demo project aimed to learn python.
 
@@ -13,7 +13,7 @@ Client use basic threading to handle connections and user input.
 
 ##How to
 
-### Server 
+### Server
 
 Default configuration will listen on port 4242 `python3 ./server.py` on every interfaces.
 
@@ -21,7 +21,7 @@ For help `$ python3 ./server.py -h`
 
 
 
-### Client 
+### Client
 
 Default configuration will connect to localhost on port 4242  `python3 ./client.py` on every interfaces.
 
@@ -38,7 +38,7 @@ You can specify the port and hostname of the server.
 * Up to 512 clients
 
 
-### Lobby 
+### Lobby
 
 To talk to everyone, simply type your message and press enter.
 
@@ -46,10 +46,10 @@ To talk to everyone, simply type your message and press enter.
 
 Type `whisper userName A message` to send a private message to userName
 
-### Chaning name
+### Changing name
 
 Type `change_name name` to change your name to  name
 
-### Exiting
+### Exit
 
 `Ctrl-c`
