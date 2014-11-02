@@ -9,15 +9,21 @@ class AbstractSocket:
         anonymous_number = 0
 
         def __init__(self, socket):
+                self.socket = socket
                 self.name = "Anonymous%i" % (AbstractSocket.anonymous_number)
                 AbstractSocket.anonymous_number += 1
-                self.socket = socket
+
         def formatMessage(self, message):
                 return "[%s] : %s" % (self.name, message)
+
         def sendMessage(self, message):
                 print('BROADCASTING',  message)
 
 class Client(AbstractSocket):
+        def __init__(self, socket):
+                super().__init__(socket)
+                self.changedName()
+
         def read_ready(self):
                 try:
                         raw = self.socket.recv(1024).decode("utf-8").strip()
@@ -31,6 +37,7 @@ class Client(AbstractSocket):
                         oldName = self.name
                         self.name = raw.split(':', 1)[1]
                         Server.instance.broadcast("User %s is now known as %s" %(oldName, self.name))
+                        self.changedName()
                 elif raw.startswith('MSG:'):
                         message = self.formatMessage(raw.split(':', 1)[1])
                         Server.instance.broadcast(message)
@@ -42,6 +49,9 @@ class Client(AbstractSocket):
                         Server.instance.private_message(self.formatMessage(message), self, to)
         def sendMessage(self, message):
                 self.socket.send(message.encode('utf-8'))
+        def changedName(self):
+                self.sendMessage("NAME:%s" % (self.name))
+
 
 class Server(AbstractSocket):
         instance = None
