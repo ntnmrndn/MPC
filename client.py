@@ -27,6 +27,9 @@ class Client(cmd.Cmd):
         super().__init__()
         self.prompt = ""
 
+    def emptyline(self):
+        return ""
+
     def default(self, string):
         Server.instance.send_message("MSG:%s" %(string) )
 
