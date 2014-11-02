@@ -13,16 +13,16 @@ class AbstractSocket:
                 self.name = "Anonymous%i" % (AbstractSocket.anonymous_number)
                 AbstractSocket.anonymous_number += 1
 
-        def formatMessage(self, message):
+        def format_message(self, message):
                 return "[%s] : %s" % (self.name, message)
 
-        def sendMessage(self, message):
+        def send_message(self, message):
                 print('BROADCASTING',  message)
 
 class Client(AbstractSocket):
         def __init__(self, socket):
                 super().__init__(socket)
-                self.changedName()
+                self.changed_name()
 
         def read_ready(self):
                 try:
@@ -34,23 +34,23 @@ class Client(AbstractSocket):
                         Server.instance.disconnect(self)
                 if raw.startswith('NAME:'):
                         #XXX check names unicity
-                        oldName = self.name
+                        old_name = self.name
                         self.name = raw.split(':', 1)[1]
-                        Server.instance.broadcast("User %s is now known as %s" %(oldName, self.name))
-                        self.changedName()
+                        Server.instance.broadcast("User %s is now known as %s" %(old_name, self.name))
+                        self.changed_name()
                 elif raw.startswith('MSG:'):
-                        message = self.formatMessage(raw.split(':', 1)[1])
+                        message = self.format_message(raw.split(':', 1)[1])
                         Server.instance.broadcast(message)
                 elif raw.startswith('PRIV:'):
                         args = raw.split(':',2)
                         to = args[1]
                         message = args[2]
                         print ("Private message from", self.name, "to", to , ":", message)
-                        Server.instance.private_message(self.formatMessage(message), self, to)
-        def sendMessage(self, message):
+                        Server.instance.private_message(self.format_message(message), self, to)
+        def send_message(self, message):
                 self.socket.send(message.encode('utf-8'))
-        def changedName(self):
-                self.sendMessage("NAME:%s" % (self.name))
+        def changed_name(self):
+                self.send_message("NAME:%s" % (self.name))
 
 
 class Server(AbstractSocket):
@@ -63,27 +63,27 @@ class Server(AbstractSocket):
                 self.socket.bind(('0.0.0.0', port))
                 self.socket.listen(512)
                 self.socket.setblocking(0)
-                self.abstractSocketHash = {self.socket : self}
+                self.abstract_socket_hash = {self.socket : self}
 
         def broadcast(self,  message):
-                for abstractSocket in self.abstractSocketHash.values():
-                        abstractSocket.sendMessage(message)
+                for abstractSocket in self.abstract_socket_hash.values():
+                        abstractSocket.send_message(message)
 
         def private_message(self, message, sender, receiver_name):
-                for abstractSocket in self.abstractSocketHash.values():
+                for abstractSocket in self.abstract_socket_hash.values():
                         if abstractSocket.name == receiver_name:
-                                abstractSocket.sendMessage("[PRIVATE] %s" %(message))
+                                abstractSocket.send_message("[PRIVATE] %s" %(message))
                                 return
-                sender.sendMessage("[SERVER]: User %s unknow" % (receiver_name))
+                sender.send_message("[SERVER]: User %s unknow" % (receiver_name))
 
 
         def disconnect(self, client):
-                self.abstractSocketHash.pop(client.socket)
+                self.abstract_socket_hash.pop(client.socket)
                 self.broadcast("[SERVER] %s disconnected" % (client.name))
 
         def clientList(self):
                 names = "" #XXX handle no other clients
-                for abstractSocket in self.abstractSocketHash.values():
+                for abstractSocket in self.abstract_socket_hash.values():
                         if abstractSocket != self:
                                 names += abstractSocket.name + " "
                 return names.strip()
@@ -94,17 +94,17 @@ class Server(AbstractSocket):
                 self.broadcast("[SERVER] %s joined" % (client.name))
                 clientList = self.clientList()
                 if not clientList:
-                        client.sendMessage("Welcome !\nYou are alone")
+                        client.send_message("Welcome !\nYou are alone")
                 else:
-                        client.sendMessage("Welcome !\nCurrent users are: %s" %  (clientList))
-                self.abstractSocketHash[new_client_socket] = client
+                        client.send_message("Welcome !\nCurrent users are: %s" %  (clientList))
+                self.abstract_socket_hash[new_client_socket] = client
 
 
         def run(self):#XXX check for write readiness
                 while 1:
-                        (ready_read, write_ready, errors) = select.select(self.abstractSocketHash.keys(), [], [], 60)
+                        (ready_read, write_ready, errors) = select.select(self.abstract_socket_hash.keys(), [], [], 60)
                         for ready_socket in ready_read:
-                                self.abstractSocketHash[ready_socket].read_ready()
+                                self.abstract_socket_hash[ready_socket].read_ready()
 
 #Arguments
 parser = argparse.ArgumentParser(description='A simple chat server.')

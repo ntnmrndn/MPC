@@ -71,7 +71,6 @@ class Server():
         Server.instance = self
         self.runner = Thread(target = self.run)
         self.runner.start()
-        #self.runner.join()
 
     def run(self):
         while self.running:
