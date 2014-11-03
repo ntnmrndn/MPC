@@ -27,7 +27,7 @@ class Client(AbstractSocket):
         def read_ready(self):
                 try:
                         raw = self.socket.recv(1024).decode("utf-8").strip()
-                except: #XXX not pretty
+                except:
                         Server.instance.disconnect(self)
                         return
                 if not raw:
@@ -82,7 +82,7 @@ class Server(AbstractSocket):
                 self.broadcast("[SERVER] %s disconnected" % (client.name))
 
         def clientList(self):
-                names = "" #XXX handle no other clients
+                names = ""
                 for abstractSocket in self.abstract_socket_hash.values():
                         if abstractSocket != self:
                                 names += abstractSocket.name + " "

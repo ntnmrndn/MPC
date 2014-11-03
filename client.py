@@ -105,5 +105,3 @@ client = Client()
 server = Server(args.host, args.port, client)
 signal.signal(signal.SIGINT, signal_handler)
 client.cmdloop("\nFor help, type help. To send a message to all, type anything")
-
-#signal.pause()
